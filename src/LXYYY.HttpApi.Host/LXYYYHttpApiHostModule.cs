@@ -28,6 +28,9 @@ using Volo.Abp.Modularity;
 using Volo.Abp.Swashbuckle;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.VirtualFileSystem;
+using LXYYY.JWT;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace LXYYY
 {
@@ -120,13 +123,25 @@ namespace LXYYY
             context.Services.AddAuthentication()
                 .AddJwtBearer(options =>
                 {
-                    options.Authority = configuration["AuthServer:Authority"];
+                    /*options.Authority = configuration["AuthServer:Authority"];
                     options.RequireHttpsMetadata = Convert.ToBoolean(configuration["AuthServer:RequireHttpsMetadata"]);
                     options.Audience = "LXYYY";
                     options.BackchannelHttpHandler = new HttpClientHandler
                     {
                         ServerCertificateCustomValidationCallback =
                             HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                    };*/
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,//是否验证Issuer
+                        ValidateAudience = true,//是否验证Audience
+                        ValidateLifetime = true,//是否验证失效时间
+                        ClockSkew = TimeSpan.FromSeconds(30),
+                        ValidateIssuerSigningKey = true,//是否验证SecurityKey
+                        ValidAudience = Const.Aduience,//Audience
+                        ValidIssuer = Const.Issuer,//Issuer，这两项和前面签发jwt的设置一致
+                        IssuerSigningKey = new
+                        SymmetricSecurityKey(Encoding.UTF8.GetBytes(Const.SecurityKey))
                     };
                 });
         }

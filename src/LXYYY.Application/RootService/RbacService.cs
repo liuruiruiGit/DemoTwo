@@ -1,5 +1,6 @@
 ﻿using LXYYY.EntityFrameworkCore;
 using LXYYY.IRootService;
+using LXYYY.JWT;
 using LXYYY.Models.Root;
 using LXYYY.RootDTO;
 using System;
@@ -15,10 +16,12 @@ namespace LXYYY.RootService
     public class RbacService : ApplicationService, IRbacService
     {
         private readonly LXYYYDbContext pp;
-        private readonly IRepository<MenuInfo, int> _menuInfos;
-        public RbacService(IRepository<MenuInfo, int> menuInfos, LXYYYDbContext _pp)
+        private readonly IRepository<MenuInfo, int> _menuInfos; 
+        private readonly IRepository<UserInfo, int> _UserInfos;
+        public RbacService(IRepository<MenuInfo, int> menuInfos, LXYYYDbContext _pp, IRepository<UserInfo, int> UserInfos)
         {
             _menuInfos = menuInfos;
+            _UserInfos = UserInfos;
             pp = _pp;
         }
         //菜单
@@ -67,6 +70,12 @@ namespace LXYYY.RootService
         //    });
         //    return tree;
         //}
+        /// <summary>
+        /// 角色分配权限
+        /// </summary>
+        /// <param name="rid"></param>
+        /// <param name="mid"></param>
+        /// <returns></returns>
         public string RoleMenF(int rid, string mid)
         {
             var list = pp.RoleMenuInfo.ToList().Where(x => x.RoleId == rid).ToList();
@@ -90,7 +99,12 @@ namespace LXYYY.RootService
                 return s.ToString();
             }
         }
-
+        /// <summary>
+        /// 用户分配角色
+        /// </summary>
+        /// <param name="uid"></param>
+        /// <param name="rid"></param>
+        /// <returns></returns>
         public string UserRoleF(int uid, string rid)
         {
             var list = pp.UserRoleInfo.ToList().Where(x => x.UserId == uid).ToList();
@@ -112,6 +126,25 @@ namespace LXYYY.RootService
             else
             {
                 return s.ToString();
+            }
+        }
+        //登录
+        public async Task<TokenDto> UserLogin(UserLoginDTO userLoginDTO)
+        {
+            var slist = await _UserInfos.GetListAsync();
+            var list = slist.Where(x => x.LoginName == userLoginDTO.UserName && x.LoginPwd == userLoginDTO.UserPwd).FirstOrDefault();
+            if (list != null)
+            {
+                return new TokenDto
+                {
+                    Msg = "成功",
+                    state = true,
+                    token = JWT.JwtToten.CreateToken(userLoginDTO.UserName)
+                };
+            }
+            else
+            {
+                return new TokenDto { Msg = "失败", state = false };
             }
         }
     }

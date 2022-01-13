@@ -1,7 +1,9 @@
-﻿using LXYYY.RootDTO;
+﻿using LXYYY.JWT;
+using LXYYY.RootDTO;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using Volo.Abp.Application.Services;
 
 namespace LXYYY.IRootService
@@ -13,5 +15,7 @@ namespace LXYYY.IRootService
         string UserRoleF(int uid, string rid);
         //角色分配权限
         string RoleMenF(int rid, string mid);
+        //登录
+        Task<TokenDto> UserLogin(UserLoginDTO userLoginDTO);
     }
 }
