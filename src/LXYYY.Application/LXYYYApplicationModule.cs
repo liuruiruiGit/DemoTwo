@@ -21,6 +21,9 @@ namespace LXYYY
         )]
     public class LXYYYApplicationModule : AbpModule
     {
+
+
+
         public override void ConfigureServices(ServiceConfigurationContext context)
         {
             Configure<AbpAutoMapperOptions>(options =>
